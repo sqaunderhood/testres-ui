@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+    <InputEncoding>UTF-8</InputEncoding>
+    <ShortName>Récidive</ShortName>
+    <Description>Récidive: service to care about your software testing results</Description>
+    <Url type="text/html" method="get" template="http://{{.}}/?q={searchTerms}"/>
+    <Url type="application/x-suggestions+json" template="http://{{.}}/?q={searchTerms}"/>
+	<Image height="15" width="16" type="image/x-icon">/favicon.ico</Image>
+</OpenSearchDescription>

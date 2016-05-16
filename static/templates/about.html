@@ -1,0 +1,101 @@
+{{ define "about" }}
+{{ template "header" . }}
+<div class="container">
+
+<h1>About</h1>
+
+<p>Récidive store test results.
+
+<p>The source code for Récidive is available <a
+  href="https://github.com/ligurio/recidive">on GitHub</a>.
+
+<h3 id="howto">Add new test results</h3>
+
+<p>Récidive supports three the most popular test results formats:
+
+<ul>
+	<li>TAP (Test Anything Protocol)
+	<li>SubUnit
+	<li>JUnit
+</ul>
+
+<p>To add a test result to Récidive, open <a href="/upload">Upload page</a>, choose desired file
+in supported format and press Upload button.
+
+<p>For batch upload you may use <a href="https://curl.haxx.se/">curl</a>:
+
+<pre>
+curl -X POST -F "data=@report.subunit" http://{{.}}/upload
+</pre>
+
+<!--
+<h3>Searching results</h3>
+
+<p>By default, searching issues will return results in any supported format.
+However, you can use the <strong>format</strong> qualifier to restrict search
+results to exact format.</p>
+
+<dl>
+  <dt><a href="/?q=cat+type%3Apr&amp;type=Issues">cat format:subunit</a></dt>
+  <dd>Matches test results in SubUnit format with the word cat.</dd>
+</dl>
+
+<p>The <strong>in</strong> qualifier limits what fields are searched. With this
+qualifier you can restrict the search to just the title, body, comments, or any
+combination of these. Without the qualifier, only the title and body are
+searched.</p>
+
+<dl>
+  <dt><a href="/?q=warning+in%3Atitle&amp;type=Issues">warning in:testcase</a></dt>
+  <dd>Matches issues with warning in their title.</dd>
+  <dt><a href="/?q=error+in%3Atitle%2Cbody&amp;type=Issues">error in:filename</a></dt>
+  <dd>Matches issues with error in their title or body.</dd>
+</dl>
+
+<p>By default, searching issues will return results with any status.
+However, you can use the <strong>status</strong> qualifier to restrict search
+results to exact status.</p>
+
+<dl>
+  <dt><a href="/?q=cat+type%3Apr&amp;type=Issues">status:failed</a></dt>
+  <dd>Matches all failed test results.</dd>
+  <dt><a href="/?q=github+commenter%3Adefunkt+type%3Aissue&amp;type=Issues">format:junit status:passed</a></dt>
+  <dd>Matches all passed test results in JUnit format.</dd>
+</dl>
+
+<p>You can filter results based on times of creation, or when they were last
+updated. For issue creation, you can use the <strong>created</strong>
+qualifier.</p>
+
+<p>It takes a date as a parameter. Date formatting must follow the <a
+href="http://en.wikipedia.org/wiki/ISO_8601">ISO8601</a> standard, which is
+<code>YYYY-MM-DD</code>--that's year-month-day.  You may also add some optional
+time information, formatted as <code>THH:MM:SS+07:00</code>--that's
+hour-minutes-seconds (<code>HH:MM:SS</code>), followed by a UTC offset
+(<code>+07:00</code>)</p>
+
+<p>Dates support range qualifiers. For example:</p>
+
+<dl>
+  <dt><a href="/?q=language%3Ac%23+created%3A%3C2011-01-01+state%3Aopen&amp;type=Issues">created:&lt;2011-01-01 status:passed</a></dt>
+  <dd>Matches passed results that were created before 2011.</dd>
+  <dt><a href="/?q=weird+in%3Abody+updated%3A%3E%3D2013-02-01&amp;type=Issues">weird in:testcase created:&gt;=2013-02-01</a></dt>
+  <dd>Matches results with the word weird in the testcase that were created after February 2013.</dd>
+  <dt><a href="/?q=author%3Apuzrin+created%3A2012-11-01..2012-12-01&amp;type=Issues">created:2012-11-01..2012-12-01</a></dt>
+  <dd>Matches results created between November and December of 2012.</dd>
+</dl>
+-->
+
+<h3 id="feedback">Feedback</h3>
+
+<p>Report bugs using the <a
+href="https://github.com/ligurio/recidive/issues/new">GitHub Issue Tracker</a>.
+
+<h3>More Documentation</h3>
+
+<p>More documentation about Recidive is available on <a
+href="https://github.com/ligurio/recidive/wiki">the project's GitHub wiki</a>.
+
+</div>
+{{ template "footer" . }}
+{{ end }}

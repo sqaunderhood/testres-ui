@@ -1,0 +1,23 @@
+{{ define "upload" }}
+{{ template "header" . }}
+<div class="container">
+
+<div class="jumbotron">
+    <h2>Upload results</h2>
+    
+  <form action="/upload" method="post" enctype="multipart/form-data" name="interactive">
+    <div class="input-group">
+      Select file to upload:
+      <input type="file" name="recidive" multiple="multiple" data-filename-placement="inside">
+      <input type="hidden" name="token" value="{{.}}"/>
+      <span class="input-group-btn">
+		<button class="btn btn-default" type="submit">Upload</button>
+      </span>
+    </div>
+  </form>
+
+</div>
+
+</div>
+{{ template "footer" . }}
+{{ end }}

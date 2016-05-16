@@ -1,0 +1,19 @@
+{{ define "view" }}
+{{ template "header" . }}
+<div class="container">
+
+  <h1></h1>
+  <p>.</p><table class="table table-condensed">
+    <thead><tr><th>Report ID</th><th>Format</th><th>Created</th><th>Filename</th><th>Hits</th></tr></thead>
+    <tbody>
+<tr><td>{{.ReportId}}</td><td>{{.Format}}</td><td>{{.Created}}</td><td>{{.Filename}}</td><td>{{.Hits}}</td></tr>
+    </tbody>
+    </table>
+
+<pre>
+{{.Body}}
+</pre>
+
+</div>
+{{ template "footer" . }}
+{{ end }}

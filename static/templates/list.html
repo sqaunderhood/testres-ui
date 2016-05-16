@@ -1,0 +1,18 @@
+{{ define "list" }}
+{{ template "header" . }}
+
+<div class="container">
+
+  <h1>Index</h1>
+  <p>The following is a list of uploaded test reports.</p><table class="table table-condensed">
+    <thead><tr><th>Filename</th><th>Timestamp</th></tr></thead>
+    <tbody>
+{{range .}}
+<tr><td><a href="/view/{{.ReportId}}">{{.Filename}}</a></td><td>{{.Created}}</td></tr>
+{{end}}
+    </tbody>
+    </table>
+
+</div>
+{{ template "footer" . }}
+{{ end }}

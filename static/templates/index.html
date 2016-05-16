@@ -1,0 +1,46 @@
+{{ define "index" }}
+{{ template "header" . }}
+
+<div class="container">
+
+<p>Récidive [<i>ʀesidiv</i>] is a standalone service used for storing and analyzing
+test data. Read the <a href="/about">About Page</a> for information about adding
+new test results to Récidive and more.</p>
+
+<div class="jumbotron">
+    <h2>Search for added test results</h2>
+    
+  <form>
+    <div class="input-group">
+      <input class="form-control" name="q" autofocus="autofocus" value="" placeholder="Search for test results." type="text">
+      <span class="input-group-btn">
+        <button class="btn btn-default" type="submit">Go!</button>
+      </span>
+    </div>
+  </form>
+
+</div>
+
+<div class="row">
+  <div class="col-sm-6">
+    
+      <h4>Recently added</h4>
+      <ul class="list-unstyled">
+{{range .}}
+        <li><a href="/view/{{.ReportId}}">{{.Filename}}</a>
+{{end}}
+      </ul>
+    
+  </div>
+  <div class="col-sm-6">
+    <h4>Popular reports</h4>
+    <ul class="list-unstyled">
+        <li>YYYYY
+    </ul>
+  </div>
+</div>
+
+</div>
+
+{{ template "footer" . }}
+{{ end }}

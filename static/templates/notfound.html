@@ -1,0 +1,15 @@
+{{ define "notfound" }}
+{{ template "header" . }}
+<div class="container">
+  
+  <h1>Not Found</h1>
+  <p>Oh snap! Our team of gophers could not find the web page you are looking
+for. Try one of these pages:
+  <ul>
+    <li><a href="/">Home</a>
+    <li><a href="/upload">Upload</a>
+  </ul>
+
+</div>
+{{ template "footer" . }}
+{{ end }}
