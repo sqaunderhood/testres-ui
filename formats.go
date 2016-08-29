@@ -15,36 +15,6 @@ import (
 // Supported formats
 var Formats = [...]string{"SubUnit", "JUnit", "TAP"}
 
-type Report struct {
-	Id       int64  `db:"id"`
-	Format   string `db:"format"`    // name of report format
-	ReportId string `db:"reportid"`  // report id is uniq identificator
-	Filename string `db:"filename"`  // file name of report
-	Body     []byte `db:"body"`      // raw report
-	Created  int64  `db:"timestamp"` // timestamp when report was uploaded
-	Hits     int    `db:"hits"`
-	Suites   []*Suite
-}
-
-type Suite struct {
-	Id    int64   `db:"id"`
-	Name  string  `db:"name"` // TAP, SubUnit, JUnit
-	Tests []*Test // TAP, SubUnit, JUnit
-}
-
-type Test struct {
-	Id          int64         `db:"id"`
-	Name        string        `db:"name"`        // SubUnit, JUnit
-	Status      tap.Directive `db:"status"`      // TAP, SubUnit, JUnit
-	Ok          bool          `db:"ok"`          // TAP, SubUnit
-	Description string        `db:"description"` // TAP
-	Explanation string        `db:"explanation"` // TAP
-	StartTime   string        `db:"starttime"`   // SubUnit, JUnit
-	EndTime     string        `db:"endtime"`     // SubUnit, JUnit
-	Tags        []string      `db:"tags"`        // SubUnit
-	Details     []byte        `db:"details"`     // TAP, SubUnit, JUnit
-}
-
 type Status int
 
 const (
