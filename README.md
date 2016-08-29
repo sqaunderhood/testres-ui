@@ -1,6 +1,6 @@
 ## Récidive
 
-[![Build Status](https://travis-ci.org/ligurio/recidive.png?branch=master)](https://travis-ci.org/ligurio/recidive)
+[![Build Status](https://travis-ci.org/ligurio/recidive.svg?branch=master)](https://travis-ci.org/ligurio/recidive)
 
 Récidive [ʀesidiv] is a standalone service used for storing and analyzing test data.
 
