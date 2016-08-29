@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	_ "time"
 
 	"github.com/ligurio/go-junit/parser"
 	_ "github.com/ligurio/go-subunit/parser"
@@ -69,7 +68,6 @@ func ReadReport(r io.Reader, name string) (*Report, error) {
 	log.Println("Report ID is", report.ReportId)
 
 	report.Filename = name
-	//report.Created = time.Now().UnixNano()
 
 	if jreport, err := junit.NewParser(r); err == nil {
 		log.Println("DEBUG: JUnit format detected.")
