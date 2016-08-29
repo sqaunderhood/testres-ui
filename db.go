@@ -49,6 +49,11 @@ func initDb(dbpath string) *gorm.DB {
 		return nil
 	}
 
+	if os.Getenv("DEBUG") == "true" {
+		log.Println("Debug mode enabled")
+		return db.Debug().LogMode(true)
+	}
+
 	if !db.HasTable(Report{}) {
 		db.CreateTable(&Report{})
 	}
@@ -57,11 +62,6 @@ func initDb(dbpath string) *gorm.DB {
 	}
 	if !db.HasTable(Test{}) {
 		db.CreateTable(&Test{})
-	}
-
-	if os.Getenv("DEBUG") == "true" {
-		log.Println("Debug mode enabled")
-		return db.Debug().LogMode(true)
 	}
 
 	return db
