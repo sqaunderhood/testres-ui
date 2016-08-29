@@ -147,7 +147,10 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, fileHeaders := range r.MultipartForm.File {
 		for _, fileHeader := range fileHeaders {
-			file, _ := fileHeader.Open()
+			file, err := fileHeader.Open()
+			if err != nil {
+				log.Println("Failed to open file")
+			}
 			log.Printf("DEBUG: File: %s\n", fileHeader.Filename)
 			report, err := ReadReport(file, fileHeader.Filename)
 			if err == nil && report != nil {
