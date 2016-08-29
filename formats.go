@@ -61,7 +61,7 @@ func ReadReport(r io.Reader, name string) (*Report, error) {
 	if err != nil {
 		return nil, err
 	}
-	report.Body = buf
+	report.Body = string(buf)
 
 	r = bytes.NewReader(buf)
 

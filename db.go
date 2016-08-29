@@ -15,7 +15,7 @@ type Report struct {
 	Format   Format    `db:"format"`
 	ReportId string    `db:"reportid"`
 	Filename string    `db:"filename"`
-	Body     []byte    `db:"body"`
+	Body     string    `db:"body"`
 	Created  time.Time `db:"default:current_timestamp"`
 	Hits     int       `db:"hits"`
 	Suites   []*Suite
