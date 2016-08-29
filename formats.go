@@ -24,14 +24,15 @@ const (
 	StatusTodo
 	StatusXFail
 	StatusUxSuccess
+)
 
+const (
 	FmtSubUnit Format = iota
 	FmtJUnit
 	FmtTAP
 )
 
 var (
-
 	// Statuses maps status to its friendly name
 	Statuses = map[Status]string{
 		StatusNone:      "NONE",
@@ -43,7 +44,9 @@ var (
 		StatusXFail:     "XFAIL",
 		StatusUxSuccess: "UXSUCCESS",
 	}
+)
 
+var (
 	// Formats maps format to its friendly name
 	Formats = map[Format]string{
 		FmtSubUnit: "SubUnit",
@@ -71,7 +74,7 @@ func ReadReport(r io.Reader, name string) (*Report, error) {
 
 	if jreport, err := junit.NewParser(r); err == nil {
 		log.Println("DEBUG: JUnit format detected.")
-		//report.Format = FmtJUnit
+		report.Format = Formats[FmtJUnit]
 
 		for _, ts := range jreport.Suites {
 			s := new(Suite)

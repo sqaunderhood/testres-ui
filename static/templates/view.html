@@ -6,12 +6,12 @@
   <p>The following is a details of uploaded test report.</p><table class="table table-condensed">
     <thead><tr><th>Report ID</th><th>Format</th><th>Created</th><th>Filename</th><th>Hits</th></tr></thead>
     <tbody>
-<tr><td>{{.ReportId}}</td><td>FORMAT</td><td>{{.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC"}}</td><td>{{.Filename}}</td><td>{{.Hits}}</td></tr>
+<tr><td>{{.ReportId}}</td><td>{{.Format}}</td><td>{{.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC"}}</td><td>{{.Filename}}</td><td>{{.Hits}}</td></tr>
     </tbody>
     </table>
 
 <pre>
-<code class="FORMAT">
+<code class="{{.Format}}">
 {{.Body}}
 </code>
 </pre>

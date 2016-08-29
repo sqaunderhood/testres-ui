@@ -11,7 +11,7 @@ import (
 
 type Report struct {
 	gorm.Model
-	Format   Format `db:"format"`
+	Format   string `db:"format"`
 	ReportId string `db:"reportid"`
 	Filename string `db:"filename"`
 	Body     string `db:"body"`
