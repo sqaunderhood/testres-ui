@@ -155,7 +155,11 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 			report, err := ReadReport(file, fileHeader.Filename)
 			if err == nil && report != nil {
 				log.Println("DEBUG: successful upload")
+
+				db.Debug().NewRecord(report)
 				db.Debug().Create(&report)
+				db.Debug().NewRecord(report)
+
 				if db.GetErrors() != nil {
 					log.Println("DEBUG: Insert failed", err)
 					errorHandler(w, r, http.StatusInternalServerError)
