@@ -2,11 +2,15 @@
 
 [![Build Status](https://travis-ci.org/ligurio/recidive.svg?branch=master)](https://travis-ci.org/ligurio/recidive)
 
-Récidive [ʀesidiv] is a standalone service used for storing and analyzing test data.
+Récidive [ʀesidiv] is a standalone service used for storing and analyzing test
+data.
 
 Récidive provides:
+
 - Single place for uploading, searching and analyzing test results;
-- Support of the most popular test results formats: [TAP](https://en.wikipedia.org/wiki/Test_Anything_Protocol), [SubUnit](https://en.wikipedia.org/wiki/Subunit_(format)) and JUnit;
+- Support of the most popular test results formats:
+[TAP](https://en.wikipedia.org/wiki/Test_Anything_Protocol),
+[SubUnit](https://en.wikipedia.org/wiki/Subunit_(format)) and JUnit;
 - Unified view of test results with lightweight UI;
 
 ### Installation
