@@ -149,8 +149,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		for _, fileHeader := range fileHeaders {
 			file, _ := fileHeader.Open()
 			log.Printf("DEBUG: File: %s\n", fileHeader.Filename)
-
-			err, report := ReadReport(file, fileHeader.Filename)
+			report, err := ReadReport(file, fileHeader.Filename)
 			if err == nil && report != nil {
 				log.Println("DEBUG: successful upload")
 				db.Debug().Create(&report)

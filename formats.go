@@ -1,120 +1,86 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"io"
 	"io/ioutil"
 	"log"
-	"time"
+	_ "time"
 
 	"github.com/ligurio/go-junit/parser"
-	"github.com/ligurio/go-subunit/parser"
-	"github.com/ligurio/go-tap/parser"
+	_ "github.com/ligurio/go-subunit/parser"
+	_ "github.com/ligurio/go-tap/parser"
 )
-
-// Supported formats
-var Formats = [...]string{"SubUnit", "JUnit", "TAP"}
 
 type Status int
+type Format int
 
 const (
-	None Status = iota
-	Fail
-	Pass
-	Skip
-	Error
-	Todo
-	XFail
-	UxSuccess
+	StatusNone Status = iota
+	StatusFail
+	StatusPass
+	StatusSkip
+	StatusError
+	StatusTodo
+	StatusXFail
+	StatusUxSuccess
+
+	FmtSubUnit Format = iota
+	FmtJUnit
+	FmtTAP
 )
 
-func (s Status) String() string {
-	switch s {
-	case None:
-		return "None"
-	case Fail:
-		return "Fail"
-	case Pass:
-		return "Pass"
-	case Skip:
-		return "Skip"
-	case Error:
-		return "Error"
-	case Todo:
-		return "Todo"
-	case XFail:
-		return "XFail"
-	case UxSuccess:
-		return "UxSuccess"
-	}
-	return ""
-}
+var (
 
-func ReadReport(r io.Reader, name string) (error, *Report) {
+	// Statuses maps status to its friendly name
+	Statuses = map[Status]string{
+		StatusNone:      "NONE",
+		StatusFail:      "FAIL",
+		StatusPass:      "PASS",
+		StatusSkip:      "SKIP",
+		StatusError:     "ERROR",
+		StatusTodo:      "TODO",
+		StatusXFail:     "XFAIL",
+		StatusUxSuccess: "UXSUCCESS",
+	}
+
+	// Formats maps format to its friendly name
+	Formats = map[Format]string{
+		FmtSubUnit: "SubUnit",
+		FmtJUnit:   "JUnit",
+		FmtTAP:     "TAP (Test Anything Protocol)",
+	}
+)
+
+func ReadReport(r io.Reader, name string) (*Report, error) {
 
 	report := new(Report)
 
 	buf, err := ioutil.ReadAll(r)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
-
 	report.Body = buf
+
+	r = bytes.NewReader(buf)
 
 	report.ReportId = makeid()
 	log.Println("Report ID is", report.ReportId)
 
 	report.Filename = name
-	report.Created = time.Now().UnixNano()
-	_, err = tap.NewParser(r)
-	log.Println("error:", err)
+	//report.Created = time.Now().UnixNano()
 
-	if p, err := tap.NewParser(r); err == nil {
-		report.Format = Formats[2]
-		log.Println(report.Format)
-		ts, _ := p.Suite()
-		if err != nil {
-			log.Println("error reading suites", err)
-		}
+	if jreport, err := junit.NewParser(r); err == nil {
+		log.Println("DEBUG: JUnit format detected.")
+		//report.Format = FmtJUnit
 
-		s := new(Suite)
-		s.Name = ""
-
-		for _, tl := range ts.Tests {
-			t := new(Test)
-			//t.Name = ""
-			t.Status = tl.Directive
-			t.Ok = tl.Ok
-			t.Description = tl.Description
-			t.Explanation = tl.Explanation
-			//t.StartTime = ""
-			//t.EndTime = ""
-			//t.Tags = ""
-			t.Details = tl.Yaml
-			s.Tests = append(s.Tests, t)
-		}
-
-		report.Suites = append(report.Suites, s)
-
-		log.Printf("%#v", report)
-		return nil, report
-
-	} else if err, _ := junit.Parser(r); err == nil {
-		log.Println("JUnit format detected.")
-		report.Format = Formats[1]
-
-		err, p := junit.Parser(r)
-		if err != nil {
-			log.Println("error", err)
-			return err, nil
-		}
-
-		for _, ts := range p.Testsuites {
+		for _, ts := range jreport.Suites {
 			s := new(Suite)
-			for _, test := range ts.Testcases {
+			for _, test := range ts.TestCases {
 				t := new(Test)
 				t.Name = test.Name
-				// FIXME t.Status = test.Status
+				//t.Status = test.Status
 				//t.Ok =
 				t.Description = ""
 				t.Explanation = ""
@@ -126,42 +92,68 @@ func ReadReport(r io.Reader, name string) (error, *Report) {
 			report.Suites = append(report.Suites, s)
 		}
 
-		log.Printf("%#v", report)
-		return nil, report
+		log.Printf("DEBUG: REPORT %#v", report)
+		return report, nil
 
-	} else if _, err := subunit.Parser(r); err == nil {
-		log.Println("SubUnit format detected.")
-		report.Format = Formats[0]
+		/*
+			} else if treport, err := tap.NewParser(r); err != nil {
+				report.Format = FmtTAP
+				log.Println("DEBUG: TAP format detected.")
 
-		p, err := subunit.Parser(r)
-		if err != nil {
-			log.Println("error", err)
-			return err, nil
-		}
-		s := new(Suite)
-		s.Name = p.Test
+				ts, err := treport.Suite()
+				if err != nil {
+					log.Println("error reading TAP suites", err)
+				}
 
-		for _, test := range p.Tests {
-			t := new(Test)
-			//t.Name = ""
-			//FIXME t.Status = test.State
-			//t.Ok = ""
-			t.Description = test.Label
-			//t.Explanation = ""
-			//t.StartTime = ""
-			//t.EndTime = ""
-			t.Tags = test.Tags
-			//t.Details = ""
-			s.Tests = append(s.Tests, t)
-		}
+				s := new(Suite)
+				s.Name = ""
 
-		log.Printf("%#v", report)
-		report.Suites = append(report.Suites, s)
-		return nil, report
+				for _, tl := range treport.Tests {
+					t := new(Test)
+					//t.Name = ""
+					t.Status = tl.Directive
+					t.Ok = tl.Ok
+					t.Description = tl.Description
+					t.Explanation = tl.Explanation
+					//t.StartTime = ""
+					//t.EndTime = ""
+					//t.Tags = ""
+					t.Details = tl.Yaml
+					s.Tests = append(s.Tests, t)
+				}
 
+				report.Suites = append(report.Suites, s)
+
+				log.Printf("%#v", report)
+				return report, nil
+
+			} else if sreport, err := subunit.NewParser(r); err == nil {
+				log.Println("SubUnit format detected.")
+				report.Format = FmtSubUnit
+
+				s := new(Suite)
+				s.Name = sreport.Test
+
+				for _, test := range sreport.Tests {
+					t := new(Test)
+					//t.Name = ""
+					//FIXME t.Status = test.State
+					//t.Ok = ""
+					t.Description = test.Label
+					//t.Explanation = ""
+					//t.StartTime = ""
+					//t.EndTime = ""
+					t.Tags = test.Tags
+					//t.Details = ""
+					s.Tests = append(s.Tests, t)
+				}
+
+				log.Printf("REPORT %#v", report)
+				report.Suites = append(report.Suites, s)
+				return report, nil
+		*/
 	} else {
 		log.Println("Unknown format.")
-		return errors.New("Unknown format."), nil
-
+		return nil, errors.New("Unknown format.")
 	}
 }
