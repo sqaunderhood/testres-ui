@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -12,12 +11,11 @@ import (
 
 type Report struct {
 	gorm.Model
-	Format   Format    `db:"format"`
-	ReportId string    `db:"reportid"`
-	Filename string    `db:"filename"`
-	Body     string    `db:"body"`
-	Created  time.Time `db:"default:current_timestamp"`
-	Hits     int       `db:"hits"`
+	Format   Format `db:"format"`
+	ReportId string `db:"reportid"`
+	Filename string `db:"filename"`
+	Body     string `db:"body"`
+	Hits     int    `db:"hits"`
 	Suites   []*Suite
 }
 
