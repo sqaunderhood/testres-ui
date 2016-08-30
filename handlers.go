@@ -182,7 +182,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 func makeid() string {
 	/*
-		SHA1 is very convenient for makeing report ID's
+		SHA1 is very convenient for making report ID's
 		but in case of similar results we will have same ID's
 		and it is not acceptable.
 
