@@ -5,6 +5,8 @@
 Récidive [ʀesidiv] is a standalone service used for storing and analyzing test
 data.
 
+*Learn more in a [book about software testing report formats](https://goo.gl/SbSXeG) (Russian).*
+
 Récidive provides:
 
 - Single place for uploading, searching and analyzing test results;
