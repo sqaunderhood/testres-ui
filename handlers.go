@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"net/url"
 	"strconv"
 	"time"
 
@@ -49,41 +48,6 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 	err := templates.ExecuteTemplate(w, "about", r.Host)
 	if err != nil {
 		log.Println("DEBUG: ", err)
-		errorHandler(w, r, http.StatusInternalServerError)
-	}
-}
-
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("HTTP request %s -> %s %s\n", r.RemoteAddr, r.Method, r.URL)
-
-	u, err := url.Parse(r.RequestURI)
-	if err != nil {
-		log.Println(err)
-		errorHandler(w, r, http.StatusInternalServerError)
-		return
-	}
-
-	m, _ := url.ParseQuery(u.RawQuery)
-
-	var reports []Report
-
-	if len(m["q"]) != 0 {
-		reports = search(m["q"][0])
-	} else {
-		db := initDb(dbpath)
-		defer db.Close()
-
-		db.Limit(10).Find(&reports)
-		if db.GetErrors() != nil {
-			log.Println(err)
-			errorHandler(w, r, http.StatusInternalServerError)
-			return
-		}
-	}
-
-	err = templates.ExecuteTemplate(w, "index", reports)
-	if err != nil {
-		log.Println(err)
 		errorHandler(w, r, http.StatusInternalServerError)
 	}
 }
@@ -181,15 +145,6 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func makeid() string {
-	/*
-		SHA1 is very convenient for making report ID's
-		but in case of similar results we will have same ID's
-		and it is not acceptable.
-
-		hasher := sha1.New()
-		hasher.Write(buf)
-		return fmt.Sprintf("%x", hasher.Sum(nil))
-	*/
 	return time.Now().Format("20060102-150405")
 }
 
@@ -199,7 +154,6 @@ func errorHandler(w http.ResponseWriter, r *http.Request, status int) {
 	case http.StatusNotFound:
 		renderTemplate(w, "notfound")
 	case http.StatusInternalServerError:
-		// FIXME: add appropriate HTML template
 		renderTemplate(w, "notfound")
 	}
 }
@@ -208,8 +162,7 @@ func StartServer(listenAddr string, staticDir *string) error {
 	r := mux.NewRouter()
 	r.StrictSlash(true)
 
-	r.HandleFunc("/", indexHandler).Methods("GET")
-	r.HandleFunc("/list", listHandler).Methods("GET")
+	r.HandleFunc("/", listHandler).Methods("GET")
 	r.HandleFunc("/about", aboutHandler).Methods("GET")
 	r.HandleFunc("/view/{id}/", viewHandler).Methods("GET")
 	r.HandleFunc("/upload", uploadHandler).Methods("GET", "POST")
