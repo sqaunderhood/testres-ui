@@ -42,16 +42,6 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func aboutHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("HTTP request %s -> %s %s\n", r.RemoteAddr, r.Method, r.URL)
-
-	err := templates.ExecuteTemplate(w, "about", r.Host)
-	if err != nil {
-		log.Println("DEBUG: ", err)
-		errorHandler(w, r, http.StatusInternalServerError)
-	}
-}
-
 func opensearchHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("HTTP request %s -> %s %s\n", r.RemoteAddr, r.Method, r.URL)
 
@@ -71,9 +61,11 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 
 	var reports []Report
 	db.Find(&reports)
+	/*
 	if db.GetErrors() != nil {
 		errorHandler(w, r, http.StatusInternalServerError)
 	}
+	*/
 
 	err := templates.ExecuteTemplate(w, "list", reports)
 	if err != nil {
@@ -107,8 +99,6 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	db := initDb(dbpath)
 	defer db.Close()
 
-	token := r.Form.Get("token")
-
 	for _, fileHeaders := range r.MultipartForm.File {
 		for _, fileHeader := range fileHeaders {
 			file, err := fileHeader.Open()
@@ -128,13 +118,8 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 					log.Println("DEBUG: Insert failed", err)
 					errorHandler(w, r, http.StatusInternalServerError)
 				} else {
-					if token != "" {
-						// FIXME: page without token
-						renderTemplate(w, "upload")
-					} else {
-						w.WriteHeader(http.StatusOK)
-						w.Write([]byte(report.ReportId + "\n"))
-					}
+					w.WriteHeader(http.StatusOK)
+					w.Write([]byte(report.ReportId + "\n"))
 				}
 			} else {
 				log.Println("DEBUG: ReadReport failed", err)
@@ -163,7 +148,6 @@ func StartServer(listenAddr string, staticDir *string) error {
 	r.StrictSlash(true)
 
 	r.HandleFunc("/", listHandler).Methods("GET")
-	r.HandleFunc("/about", aboutHandler).Methods("GET")
 	r.HandleFunc("/view/{id}/", viewHandler).Methods("GET")
 	r.HandleFunc("/upload", uploadHandler).Methods("GET", "POST")
 	r.HandleFunc("/opensearch.xml", opensearchHandler).Methods("GET")
