@@ -3,9 +3,8 @@
 
 <div class="container">
 
-  <h1>Index</h1>
-  <p>The following is a list of uploaded test reports.</p><table class="table table-condensed">
-    <thead><tr><th>Report ID</th><th>Created</th><th>Hits</th></tr></thead>
+  <table class="table table-condensed">
+    <thead><tr><th>ID</th><th>Created</th><th>Hits</th></tr></thead>
     <tbody>
 {{range .}}
 <tr><td><a href="/view/{{.ReportId}}">{{.ReportId}}</a></td><td>{{.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC"}}</td><td>{{.Hits}}</td></tr>
