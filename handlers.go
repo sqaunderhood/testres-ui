@@ -1,12 +1,9 @@
 package main
 
 import (
-	"crypto/sha1"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -76,13 +73,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("HTTP request %s -> %s %s\n", r.RemoteAddr, r.Method, r.URL)
 	if r.Method == "GET" {
-		ctime := time.Now().Unix()
-
-		hasher := sha1.New()
-		hasher.Write([]byte(strconv.FormatInt(ctime, 10)))
-		token := fmt.Sprintf("%x", hasher.Sum(nil))
-
-		err := templates.ExecuteTemplate(w, "upload", token)
+		err := templates.ExecuteTemplate(w, "upload", nil)
 		if err != nil {
 			log.Println("DEBUG: ", err)
 			errorHandler(w, r, http.StatusInternalServerError)
