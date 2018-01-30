@@ -22,8 +22,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 
 	report := new(Report)
 	report.ReportId = id
-	db.Find(&report, "report_id = ?", report.ReportId)
-	if db.GetErrors() != nil {
+	if db.Where("report_id = ?", report.ReportId).Find(&report).RecordNotFound() {
 		errorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
