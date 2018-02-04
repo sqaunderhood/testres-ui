@@ -75,12 +75,6 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 		db.Find(&reports)
 	}
 
-	/*
-	if db.GetErrors() != nil {
-		errorHandler(w, r, http.StatusInternalServerError)
-	}
-	*/
-
 	err = templates.ExecuteTemplate(w, "list", reports)
 	if err != nil {
 		errorHandler(w, r, http.StatusInternalServerError)
@@ -122,8 +116,11 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 				db.Debug().Create(&report)
 				db.Debug().NewRecord(report)
 
-				if db.GetErrors() != nil {
-					log.Println("DEBUG: Insert failed", err)
+				errors := db.GetErrors()
+				if len(errors) != 0 {
+					for err := range errors {
+						log.Println("DEBUG: Insert failed", err)
+					}
 					errorHandler(w, r, http.StatusInternalServerError)
 				} else {
 					w.WriteHeader(http.StatusOK)
