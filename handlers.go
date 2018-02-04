@@ -4,6 +4,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/matoous/go-nanoid"
@@ -51,19 +53,35 @@ func opensearchHandler(w http.ResponseWriter, r *http.Request) {
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("HTTP request %s -> %s %s\n", r.RemoteAddr, r.Method, r.URL)
+	log.Println("GET params were:", r.URL.Query())
+
+	duration := r.URL.Query().Get("duration")
+	if duration != "" {
+		log.Println("URL parameter 'duration' is: ", string(duration))
+	}
+
+	period := 0
+	period, err := strconv.Atoi(duration)
 
 	db := initDb(dbpath)
 	defer db.Close()
 
 	var reports []Report
-	db.Find(&reports)
+	if period > 0 {
+		now := time.Now()
+		then := now.AddDate(0, 0, 0-period)
+		db.Where("created_at BETWEEN ? AND ?", then, now).Find(&reports)
+	} else {
+		db.Find(&reports)
+	}
+
 	/*
 	if db.GetErrors() != nil {
 		errorHandler(w, r, http.StatusInternalServerError)
 	}
 	*/
 
-	err := templates.ExecuteTemplate(w, "list", reports)
+	err = templates.ExecuteTemplate(w, "list", reports)
 	if err != nil {
 		errorHandler(w, r, http.StatusInternalServerError)
 	}
