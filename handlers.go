@@ -4,9 +4,9 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/matoous/go-nanoid"
 )
 
 // 2MB
@@ -119,8 +119,14 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func makeid() string {
-	return time.Now().Format("20060102-150405")
+func makeID() string {
+
+	id, err := gonanoid.Nanoid(10)
+	if err != nil {
+		panic(err)
+	}
+
+	return id
 }
 
 func errorHandler(w http.ResponseWriter, r *http.Request, status int) {

@@ -65,7 +65,7 @@ func ReadReport(r io.Reader, name string) (*Report, error) {
 
 	r = bytes.NewReader(buf)
 
-	report.ReportId = makeid()
+	report.ReportId = makeID()
 	log.Println("Report ID is", report.ReportId)
 
 	report.Filename = name
