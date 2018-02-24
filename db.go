@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -10,37 +11,42 @@ import (
 )
 
 type Report struct {
-	gorm.Model
-	Format   string `db:"format"`
-	ReportId string `db:"reportid"`
-	Filename string `db:"filename"`
-	Body     string `db:"body"`
-	Hits     int    `db:"hits"`
-	Suites   []*Suite
+	Id        uint64 `gorm:"primary_key"`
+	UID       string
+	Format    string
+	Filename  string
+	Body      string
+	Hits      int
+	Suites    []Suite
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
 }
 
 type Suite struct {
-	gorm.Model
-	Name  string  `db:"size:255;index:name_idx"` // TAP, SubUnit, JUnit
-	Tests []*Test // TAP, SubUnit, JUnit
+	Id    uint64 `gorm:"primary_key"`
+	Name  string `gorm:index` // TAP, SubUnit, JUnit
+	Tests []Test
 }
 
 type Test struct {
-	gorm.Model
-	Name        string `db:"name"`        // SubUnit, JUnit
-	Status      Status `db:"status"`      // TAP, SubUnit, JUnit
-	Ok          bool   `db:"ok"`          // TAP, SubUnit
-	Description string `db:"description"` // TAP
-	Explanation string `db:"explanation"` // TAP
-	StartTime   string `db:"starttime"`   // SubUnit, JUnit
-	EndTime     string `db:"endtime"`     // SubUnit, JUnit
-	Tags        string `db:"tags"`        // SubUnit
-	Details     []byte `db:"details"`     // TAP, SubUnit, JUnit
+	Id          uint64 `gorm:"primary_key"`
+	SuiteId     uint64
+	Name        string `gorm:index` // SubUnit, JUnit
+	Ok          bool   // TAP, SubUnit
+	Description string // TAP
+	Explanation string // TAP
+	StartTime   string // SubUnit, JUnit
+	EndTime     string // SubUnit, JUnit
+	Tags        string // SubUnit
+	Details     []byte // TAP, SubUnit, JUnit
+	Status      Status // TAP, SubUnit, JUnit
 }
 
 func initDb(dbpath string) *gorm.DB {
 
 	db, err := gorm.Open("sqlite3", dbpath)
+	db.AutoMigrate(&Report{}, &Suite{}, &Test{})
 
 	if err != nil {
 		log.Println("gorm.Open failed")

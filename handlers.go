@@ -23,8 +23,10 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	report := new(Report)
-	report.ReportId = id
-	if db.Where("report_id = ?", report.ReportId).Find(&report).RecordNotFound() {
+	report.UID = id
+
+	if err := db.Where("ui_d = ?", report.UID).First(&report).Error; err != nil {
+		log.Println(err.Error())
 		errorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
@@ -111,11 +113,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 			report, err := ReadReport(file, fileHeader.Filename)
 			if err == nil && report != nil {
 				log.Println("DEBUG: successful upload")
-
-				db.Debug().NewRecord(report)
 				db.Debug().Create(&report)
-				db.Debug().NewRecord(report)
-
 				errors := db.GetErrors()
 				if len(errors) != 0 {
 					for err := range errors {
@@ -124,7 +122,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 					errorHandler(w, r, http.StatusInternalServerError)
 				} else {
 					w.WriteHeader(http.StatusOK)
-					w.Write([]byte(report.ReportId + "\n"))
+					w.Write([]byte(report.UID + "\n"))
 				}
 			} else {
 				log.Println("DEBUG: ReadReport failed", err)

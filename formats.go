@@ -65,8 +65,8 @@ func ReadReport(r io.Reader, name string) (*Report, error) {
 
 	r = bytes.NewReader(buf)
 
-	report.ReportId = makeID()
-	log.Println("Report ID is", report.ReportId)
+	report.UID = makeID()
+	log.Println("Report ID is", report.UID)
 
 	report.Filename = name
 
@@ -86,9 +86,9 @@ func ReadReport(r io.Reader, name string) (*Report, error) {
 				t.StartTime = test.Time
 				t.EndTime = test.Time
 				//t.Tags =
-				s.Tests = append(s.Tests, t)
+				s.Tests = append(s.Tests, *t)
 			}
-			report.Suites = append(report.Suites, s)
+			report.Suites = append(report.Suites, *s)
 		}
 
 		log.Printf("DEBUG: REPORT %#v", report)
