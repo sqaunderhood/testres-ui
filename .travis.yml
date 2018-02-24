@@ -1,9 +1,15 @@
 language: go
 
+os:
+  - linux
+  - osx
+
 go:
   - tip
-  - 1.5
-  - 1.4.2
+  - 1.7
+
+script:
+  - test -z "$(gofmt -s -l . | tee /dev/stderr)"
 
 notifications:
   email:
