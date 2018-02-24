@@ -23,13 +23,14 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	report := new(Report)
-	report.UID = id
-
-	if err := db.Where("ui_d = ?", report.UID).First(&report).Error; err != nil {
+	if err := db.Where("uid = ?", id).First(&report).Error; err != nil {
 		log.Println(err.Error())
 		errorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
+
+	db.Preload("Suites.Tests").Find(&report)
+	db.Preload("Suites").Preload("Suites.Tests").Find(&report)
 
 	report.Hits = report.Hits + 1
 	db.Save(&report)

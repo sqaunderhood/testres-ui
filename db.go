@@ -24,9 +24,10 @@ type Report struct {
 }
 
 type Suite struct {
-	Id    uint64 `gorm:"primary_key"`
-	Name  string `gorm:index` // TAP, SubUnit, JUnit
-	Tests []Test
+	Id       uint64 `gorm:"primary_key"`
+	ReportId uint64
+	Name     string `gorm:index` // TAP, SubUnit, JUnit
+	Tests    []Test
 }
 
 type Test struct {
@@ -64,9 +65,11 @@ func initDb(dbpath string) *gorm.DB {
 	if !db.HasTable(Suite{}) {
 		db.CreateTable(&Suite{})
 	}
+	db.Model(&Report{}).Related(&Suite{}, "ReportId")
 	if !db.HasTable(Test{}) {
 		db.CreateTable(&Test{})
 	}
+	db.Model(&Suite{}).Related(&Test{}, "SuiteId")
 
 	return db
 }
