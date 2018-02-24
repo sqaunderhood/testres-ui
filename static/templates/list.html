@@ -3,17 +3,28 @@
 
 <div class="container">
 
+<div class="jumbotron">
+<form>
+<div class="input-group">
+<input class="form-control" name="q" autofocus="autofocus" value="" placeholder="Search for testing results." type="text">
+<span class="input-group-btn">
+<button class="btn btn-default" type="submit">Go!</button>
+</span>
+</div>
+</form>
+</div>
+
 <a href="/?duration=1">Today</a> |
 <a href="/?duration=7">Week</a> |
 <a href="/?duration=30">Month</a>
-
 <div>Total number of reports is {{ len . }}.</div>
 
   <table class="table table-condensed">
     <thead><tr><th>ID</th><th>Created</th><th>Hits</th></tr></thead>
     <tbody>
 {{range .}}
-<tr><td><a href="/view/{{.ReportId}}">{{.ReportId}}</a></td><td>{{.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC"}}</td><td>{{.Hits}}</td></tr>
+<tr><td><a href="/view/{{.UID}}">Show</a></td><td><span style='padding-left:10px;background-color:#b4ddb6;display:block;width:78%'>{{.CreatedAt.Format "Jan 02, 2006 15:04"}}</span></td><td>{{.Hits}}</td></tr>
+</td></tr>
 {{end}}
     </tbody>
     </table>
