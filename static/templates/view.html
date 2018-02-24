@@ -2,19 +2,38 @@
 {{ template "header" . }}
 <div class="container">
 
-  <h1>Test report {{.ReportId}}</h1>
+  <h1>Test report</h1>
   <p>The following is a details of uploaded test report.</p><table class="table table-condensed">
-    <thead><tr><th>Report ID</th><th>Format</th><th>Created</th><th>Filename</th><th>Hits</th></tr></thead>
+    <thead><tr><th>Suites</th><th>Format</th><th>Created</th><th>Hits</th></tr></thead>
     <tbody>
-<tr><td>{{.ReportId}}</td><td>{{.Format}}</td><td>{{.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC"}}</td><td>{{.Filename}}</td><td>{{.Hits}}</td></tr>
+<tr><td>{{ len .Suites }}</td><td>{{.Format}}</td><td>{{.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC"}}</td><td>{{.Hits}}</td></tr>
     </tbody>
     </table>
 
+{{ range .Suites }}
+	{{ if .Name }}
+	Testsuite name: {{ .Name }} <br>
+	{{ end }}
+	{{range .Tests }}
+	   {{ if .Name }}
+	      <b>{{.Name}}</b>
+	   {{ else }}
+	      <b>NONAME</b>
+	   {{ end }}
+	   Ok: {{.Ok}}
+	   {{ if and .StartTime .EndTime }}
+	      {{.StartTime}} - {{.EndTime}} <br>
+	   {{ end }}
+	{{end}}
+{{ end }}
+
+{{ if .Body }}
 <pre>
 <code class="{{.Format}}">
 {{.Body}}
 </code>
 </pre>
+{{ end }}
 
 </div>
 {{ template "footer" . }}
