@@ -1,8 +1,3 @@
-# go-junit
-
-[![Build Status](https://travis-ci.org/ligurio/go-junit.png?branch=master)](https://travis-ci.org/ligurio/go-junit) [![Go Report Card](https://goreportcard.com/badge/github.com/ligurio/go-junit)](https://goreportcard.com/report/github.com/ligurio/go-junit)
-[![GoDoc](https://godoc.org/github.com/ligurio/go-junit/parser?status.svg)](https://godoc.org/github.com/ligurio/go-junit/parser)
-
 This is a basic JUnit parser for the Go programming language.
 
 As there is no definitive JUnit XSD that I could find, the XML documents read by
@@ -14,7 +9,7 @@ File a bug if something doesn't work like you expect it to.
 
 Install or update using the `go get` command:
 
-	go get -u github.com/ligurio/go-junit
+	go get -u github.com/ligurio/recidive/junit
 
 ## Example
 
