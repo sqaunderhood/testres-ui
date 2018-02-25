@@ -1,4 +1,4 @@
-package main
+package formats
 
 import (
 	"bytes"
@@ -6,9 +6,44 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"time"
 
-	"github.com/ligurio/go-junit/parser"
+	"github.com/ligurio/recidive/formats/junit"
 )
+
+type Report struct {
+	Id        uint64 `gorm:"primary_key"`
+	UID       string
+	Format    string
+	Filename  string
+	Body      string
+	Hits      int
+	Suites    []Suite
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
+}
+
+type Suite struct {
+	Id       uint64 `gorm:"primary_key"`
+	ReportId uint64
+	Name     string `gorm:index` // TAP, SubUnit, JUnit
+	Tests    []Test
+}
+
+type Test struct {
+	Id          uint64 `gorm:"primary_key"`
+	SuiteId     uint64
+	Name        string `gorm:index` // SubUnit, JUnit
+	Ok          bool   // TAP, SubUnit
+	Description string // TAP
+	Explanation string // TAP
+	StartTime   string // SubUnit, JUnit
+	EndTime     string // SubUnit, JUnit
+	Tags        string // SubUnit
+	Details     []byte // TAP, SubUnit, JUnit
+	Status      Status // TAP, SubUnit, JUnit
+}
 
 type Status int
 type Format int
@@ -64,9 +99,6 @@ func ReadReport(r io.Reader, name string) (*Report, error) {
 	report.Body = string(buf)
 
 	r = bytes.NewReader(buf)
-
-	report.UID = makeID()
-	log.Println("Report ID is", report.UID)
 
 	report.Filename = name
 

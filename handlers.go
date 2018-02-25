@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/ligurio/recidive/formats"
 	"github.com/matoous/go-nanoid"
 )
 
@@ -22,7 +23,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	db := initDb(dbpath)
 	defer db.Close()
 
-	report := new(Report)
+	report := new(formats.Report)
 	if err := db.Where("uid = ?", id).First(&report).Error; err != nil {
 		log.Println(err.Error())
 		errorHandler(w, r, http.StatusInternalServerError)
@@ -69,7 +70,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	db := initDb(dbpath)
 	defer db.Close()
 
-	var reports []Report
+	var reports []formats.Report
 	if period > 0 {
 		now := time.Now()
 		then := now.AddDate(0, 0, 0-period)
@@ -111,7 +112,11 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println("Failed to open file")
 			}
 			log.Printf("DEBUG: File: %s\n", fileHeader.Filename)
-			report, err := ReadReport(file, fileHeader.Filename)
+			report, err := formats.ReadReport(file, fileHeader.Filename)
+
+			report.UID = makeID()
+			log.Println("Report ID is", report.UID)
+
 			if err == nil && report != nil {
 				log.Println("DEBUG: successful upload")
 				db.Debug().Create(&report)
