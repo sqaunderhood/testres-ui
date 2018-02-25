@@ -22,12 +22,14 @@
 	   {{ end }}
 	   Ok: {{.Ok}}
 	   {{ if and .StartTime .EndTime }}
-	      {{.StartTime}} - {{.EndTime}} <br>
+	      {{.StartTime}} - {{.EndTime}}
 	   {{ end }}
+	   <br>
 	{{end}}
 {{ end }}
 
 {{ if .Body }}
+<h3>Raw output</h3>
 <pre>
 <code class="{{.Format}}">
 {{.Body}}
