@@ -14,5 +14,6 @@ var (
 
 func main() {
 	flag.Parse()
+	log.Println("Used database", dbpath)
 	log.Fatal(StartServer(*httpAddr, staticDir))
 }
