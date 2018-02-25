@@ -285,6 +285,22 @@ var testset = []tcase{
 			{tc_number: 1, prop_number: 0},
 		},
 	},
+	{
+		/*
+			Sample of JUnit report, that is successfully parsed by Bamboo
+			https://confluence.atlassian.com/bamboo/junit-parsing-in-bamboo-289277357.html
+		*/
+		name: "junit-sample-7.xml",
+		skip: true,
+	},
+	{
+		/*
+			Sample of JUnit report, that is successfully parsed by Bamboo
+			https://confluence.atlassian.com/bamboo/junit-parsing-in-bamboo-289277357.html
+		*/
+		name: "junit-sample-8.xml",
+		skip: true,
+	},
 }
 
 func TestParser(t *testing.T) {
