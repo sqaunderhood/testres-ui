@@ -1,9 +1,11 @@
 ## Récidive
 
-[![Build Status](https://travis-ci.org/ligurio/recidive.svg?branch=master)](https://travis-ci.org/ligurio/recidive)
+[![Build Status](https://travis-ci.org/ligurio/recidive.svg?branch=master)](https://travis-ci.org/ligurio/recidive) [![Go Report Card](https://goreportcard.com/badge/github.com/ligurio/recidive)](https://goreportcard.com/report/github.com/ligurio/recidive)
 
 Récidive [ʀesidiv] is a standalone service used for storing and analyzing test
 data.
+
+*Learn more about software testing report formats in a [book](https://goo.gl/SbSXeG) (in Russian).*
 
 Récidive provides:
 

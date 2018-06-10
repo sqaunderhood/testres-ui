@@ -1,16 +1,15 @@
 package main
 
 import (
-	"crypto/sha1"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
-	"net/url"
 	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/ligurio/recidive/formats"
+	"github.com/matoous/go-nanoid"
 )
 
 // 2MB
@@ -24,13 +23,15 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	db := initDb(dbpath)
 	defer db.Close()
 
-	report := new(Report)
-	report.ReportId = id
-	db.Find(&report, "report_id = ?", report.ReportId)
-	if db.GetErrors() != nil {
+	report := new(formats.Report)
+	if err := db.Where("uid = ?", id).First(&report).Error; err != nil {
+		log.Println(err.Error())
 		errorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
+
+	db.Preload("Suites.Tests").Find(&report)
+	db.Preload("Suites").Preload("Suites.Tests").Find(&report)
 
 	report.Hits = report.Hits + 1
 	db.Save(&report)
@@ -40,51 +41,6 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		errorHandler(w, r, http.StatusInternalServerError)
 		return
-	}
-}
-
-func aboutHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("HTTP request %s -> %s %s\n", r.RemoteAddr, r.Method, r.URL)
-
-	err := templates.ExecuteTemplate(w, "about", r.Host)
-	if err != nil {
-		log.Println("DEBUG: ", err)
-		errorHandler(w, r, http.StatusInternalServerError)
-	}
-}
-
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("HTTP request %s -> %s %s\n", r.RemoteAddr, r.Method, r.URL)
-
-	u, err := url.Parse(r.RequestURI)
-	if err != nil {
-		log.Println(err)
-		errorHandler(w, r, http.StatusInternalServerError)
-		return
-	}
-
-	m, _ := url.ParseQuery(u.RawQuery)
-
-	var reports []Report
-
-	if len(m["q"]) != 0 {
-		reports = search(m["q"][0])
-	} else {
-		db := initDb(dbpath)
-		defer db.Close()
-
-		db.Limit(10).Find(&reports)
-		if db.GetErrors() != nil {
-			log.Println(err)
-			errorHandler(w, r, http.StatusInternalServerError)
-			return
-		}
-	}
-
-	err = templates.ExecuteTemplate(w, "index", reports)
-	if err != nil {
-		log.Println(err)
-		errorHandler(w, r, http.StatusInternalServerError)
 	}
 }
 
@@ -101,17 +57,29 @@ func opensearchHandler(w http.ResponseWriter, r *http.Request) {
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("HTTP request %s -> %s %s\n", r.RemoteAddr, r.Method, r.URL)
+	log.Println("GET params were:", r.URL.Query())
+
+	duration := r.URL.Query().Get("duration")
+	if duration != "" {
+		log.Println("URL parameter 'duration' is: ", string(duration))
+	}
+
+	period := 0
+	period, err := strconv.Atoi(duration)
 
 	db := initDb(dbpath)
 	defer db.Close()
 
-	var reports []Report
-	db.Find(&reports)
-	if db.GetErrors() != nil {
-		errorHandler(w, r, http.StatusInternalServerError)
+	var reports []formats.Report
+	if period > 0 {
+		now := time.Now()
+		then := now.AddDate(0, 0, 0-period)
+		db.Where("created_at BETWEEN ? AND ?", then, now).Find(&reports)
+	} else {
+		db.Find(&reports)
 	}
 
-	err := templates.ExecuteTemplate(w, "list", reports)
+	err = templates.ExecuteTemplate(w, "list", reports)
 	if err != nil {
 		errorHandler(w, r, http.StatusInternalServerError)
 	}
@@ -120,13 +88,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("HTTP request %s -> %s %s\n", r.RemoteAddr, r.Method, r.URL)
 	if r.Method == "GET" {
-		ctime := time.Now().Unix()
-
-		hasher := sha1.New()
-		hasher.Write([]byte(strconv.FormatInt(ctime, 10)))
-		token := fmt.Sprintf("%x", hasher.Sum(nil))
-
-		err := templates.ExecuteTemplate(w, "upload", token)
+		err := templates.ExecuteTemplate(w, "upload", nil)
 		if err != nil {
 			log.Println("DEBUG: ", err)
 			errorHandler(w, r, http.StatusInternalServerError)
@@ -143,8 +105,6 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	db := initDb(dbpath)
 	defer db.Close()
 
-	token := r.Form.Get("token")
-
 	for _, fileHeaders := range r.MultipartForm.File {
 		for _, fileHeader := range fileHeaders {
 			file, err := fileHeader.Open()
@@ -152,25 +112,23 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println("Failed to open file")
 			}
 			log.Printf("DEBUG: File: %s\n", fileHeader.Filename)
-			report, err := ReadReport(file, fileHeader.Filename)
+			report, err := formats.ReadReport(file, fileHeader.Filename)
+
+			report.UID = makeID()
+			log.Println("Report ID is", report.UID)
+
 			if err == nil && report != nil {
 				log.Println("DEBUG: successful upload")
-
-				db.Debug().NewRecord(report)
 				db.Debug().Create(&report)
-				db.Debug().NewRecord(report)
-
-				if db.GetErrors() != nil {
-					log.Println("DEBUG: Insert failed", err)
+				errors := db.GetErrors()
+				if len(errors) != 0 {
+					for err := range errors {
+						log.Println("DEBUG: Insert failed", err)
+					}
 					errorHandler(w, r, http.StatusInternalServerError)
 				} else {
-					if token != "" {
-						// FIXME: page without token
-						renderTemplate(w, "upload")
-					} else {
-						w.WriteHeader(http.StatusOK)
-						w.Write([]byte(report.ReportId + "\n"))
-					}
+					w.WriteHeader(http.StatusOK)
+					w.Write([]byte(report.UID + "\n"))
 				}
 			} else {
 				log.Println("DEBUG: ReadReport failed", err)
@@ -180,17 +138,14 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func makeid() string {
-	/*
-		SHA1 is very convenient for making report ID's
-		but in case of similar results we will have same ID's
-		and it is not acceptable.
+func makeID() string {
 
-		hasher := sha1.New()
-		hasher.Write(buf)
-		return fmt.Sprintf("%x", hasher.Sum(nil))
-	*/
-	return time.Now().Format("20060102-150405")
+	id, err := gonanoid.Nanoid(10)
+	if err != nil {
+		panic(err)
+	}
+
+	return id
 }
 
 func errorHandler(w http.ResponseWriter, r *http.Request, status int) {
@@ -199,7 +154,6 @@ func errorHandler(w http.ResponseWriter, r *http.Request, status int) {
 	case http.StatusNotFound:
 		renderTemplate(w, "notfound")
 	case http.StatusInternalServerError:
-		// FIXME: add appropriate HTML template
 		renderTemplate(w, "notfound")
 	}
 }
@@ -208,9 +162,7 @@ func StartServer(listenAddr string, staticDir *string) error {
 	r := mux.NewRouter()
 	r.StrictSlash(true)
 
-	r.HandleFunc("/", indexHandler).Methods("GET")
-	r.HandleFunc("/list", listHandler).Methods("GET")
-	r.HandleFunc("/about", aboutHandler).Methods("GET")
+	r.HandleFunc("/", listHandler).Methods("GET")
 	r.HandleFunc("/view/{id}/", viewHandler).Methods("GET")
 	r.HandleFunc("/upload", uploadHandler).Methods("GET", "POST")
 	r.HandleFunc("/opensearch.xml", opensearchHandler).Methods("GET")
