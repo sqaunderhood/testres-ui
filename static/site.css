@@ -124,3 +124,43 @@ h1:hover .permalink, h2:hover .permalink, h3:hover .permalink, h4:hover .permali
         font-size:16px;
     }
 }
+
+/*
+body {
+	padding: 40px 0 0 0;
+	font-family: sans-serif;
+	background: #f2f2f2;
+}
+*/
+
+.bar {
+	height: 30px;
+	width: 100%;
+	margin: 0 auto;
+	display: flex;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.bar section {
+	height: 30px;
+	line-height: 30px;
+	text-align: center;
+	color: white;
+}
+
+.bar section:last-of-type {
+	flex: auto;
+}
+
+#green {
+	background: #65d260;
+}
+
+#red {
+	background: #f54954;
+}
+
+#grey {
+	background: #C7C5CA;
+}

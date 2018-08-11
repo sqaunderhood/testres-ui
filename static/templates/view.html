@@ -3,12 +3,19 @@
 <div class="container">
 
   <h1>Test report</h1>
-  <p>The following is a details of uploaded test report.</p><table class="table table-condensed">
+
+  <table class="table table-condensed">
     <thead><tr><th>Suites</th><th>Format</th><th>Created</th><th>Hits</th></tr></thead>
     <tbody>
 <tr><td>{{ len .Suites }}</td><td>{{.Format}}</td><td>{{.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC"}}</td><td>{{.Hits}}</td></tr>
     </tbody>
     </table>
+
+    <div class="bar">
+	    <section id="green" style="width: 20%">Passed</section>
+	    <section id="red" style="width: 60%">Failed</section>
+	    <section id="grey">Unknown</section>
+    </div>
 
 {{ range .Suites }}
 	{{ if .Name }}
