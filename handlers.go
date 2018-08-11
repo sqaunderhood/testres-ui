@@ -55,9 +55,10 @@ func opensearchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func listHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("HTTP request %s -> %s %s\n", r.RemoteAddr, r.Method, r.URL)
-	log.Println("GET params were:", r.URL.Query())
+func ProcessQuery(r *http.Request) ([]formats.Report, error) {
+	/*
+		Process HTTP query and return a list of reports
+	*/
 
 	duration := r.URL.Query().Get("duration")
 	if duration != "" {
@@ -65,7 +66,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	period := 0
-	period, err := strconv.Atoi(duration)
+	period, _ = strconv.Atoi(duration)
 
 	db := initDb(dbpath)
 	defer db.Close()
@@ -79,6 +80,15 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 		db.Find(&reports)
 	}
 
+	return reports, nil
+}
+
+func listHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("HTTP request %s -> %s %s\n", r.RemoteAddr, r.Method, r.URL)
+	log.Println("GET params were:", r.URL.Query())
+
+	// TODO: pass r.URL.RequestURI() to chart URL in HTML template
+	reports, err := ProcessQuery(r)
 	err = templates.ExecuteTemplate(w, "list", reports)
 	if err != nil {
 		errorHandler(w, r, http.StatusInternalServerError)
@@ -165,6 +175,10 @@ func StartServer(listenAddr string, staticDir *string) error {
 	r.HandleFunc("/", listHandler).Methods("GET")
 	r.HandleFunc("/view/{id}/", viewHandler).Methods("GET")
 	r.HandleFunc("/upload", uploadHandler).Methods("GET", "POST")
+	r.HandleFunc("/chart/pie", drawPieChart).Methods("GET")
+	r.HandleFunc("/chart/bar", drawBarChart).Methods("GET")
+	r.HandleFunc("/chart/stackedbar", drawStackedBarChart).Methods("GET")
+	r.HandleFunc("/chart/twoaxes", drawTwoAxesChart).Methods("GET")
 	r.HandleFunc("/opensearch.xml", opensearchHandler).Methods("GET")
 
 	s := http.StripPrefix("/static/", http.FileServer(http.Dir(*staticDir)))
