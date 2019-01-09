@@ -34,7 +34,7 @@ type JUnitReport struct {
 	Errors   int      `xml:"errors,attr,omitempty"`
 	Failures int      `xml:"failures,attr,omitempty"`
 	Name     string   `xml:"name,attr,omitempty"`
-	Time     string   `xml:"time,attr,omitempty"`
+	Time     float64  `xml:"time,attr,omitempty"`
 	Tests    int      `xml:"tests,attr,omitempty"`
 
 	Suites []JUnitTestsuite `xml:"testsuite"`
@@ -53,7 +53,7 @@ type JUnitTestsuite struct {
 	Package   string   `xml:"package,attr,omitempty"`
 	Skipped   int      `xml:"skipped,attr,omitempty"`
 	Tests     int      `xml:"tests,attr,omitempty"`
-	Time      string   `xml:"time,attr,omitempty"`
+	Time      float64  `xml:"time,attr,omitempty"`
 	Timestamp string   `xml:"timestamp,attr,omitempty"`
 
 	Properties []JUnitProperty `xml:"property->property"`
@@ -79,7 +79,7 @@ type JUnitTestcase struct {
 	Status     string        `xml:"status,attr,omitempty"`
 	Systemout  InnerResult   `xml:"system-out,omitempty"`
 	Systemerr  InnerResult   `xml:"system-err,omitempty"`
-	Time       string        `xml:"time,attr,omitempty"`
+	Time       float64       `xml:"time,attr,omitempty"`
 }
 
 // JUnitFailure contains data related to a failed test.
